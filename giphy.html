@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>TV Show Gifs!</title>
+</head>
+
+<body>
+  <div class="button-container">
+    <button data-show="Sherlock" class="search-gif-button">Sherlock</button>
+    <button data-show="Stranger Things" class="search-gif-button">Stranger Things</button>
+    <button data-show="London Spy" class="search-gif-button">London Spy</button>
+  </div>
+  <form>
+    <input id="searchtext" type="text" placeholder="Search here...">
+    <button id="searchgifs" type="submit">Submit</button>
+  </form>
+
+
+  <div id="gifs-Div">
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+
+
+    $(document).on("click", ".search-gif-button", function () {
+      var show = $(this).attr("data-show");
+
+      // need queryURL
+      var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+        show + "&api_key=dc6zaTOxFJmzC&limit=10";
+
+      //  AJAX request
+      $.ajax({
+        url: queryURL,
+        method: "GET"
+      })
+        // After data comes back from the request
+        .then(function (response) {
+          // console.log(queryURL);
+
+          var results = response.data;
+          console.log(results)
+
+          // for loop to go through results from giphy
+          for (var i = 0; i < results.length; i++) {
+
+
+            // div creation to store future gifs
+
+            var tvShowDiv = $("<div>");
+
+            var p = $("<p>").text("Rating: " + results[i].rating);
+
+
+            var showGifs = $("<img>");
+
+            showGifs.attr("src", results[i].images.fixed_height_still.url);
+            showGifs.attr("data-still", results[i].images.fixed_height_still.url);
+            showGifs.attr("data-animate", results[i].images.fixed_height.url);
+            showGifs.attr("data-state", "still");
+            showGifs.addClass("giphy-image");
+
+            // append p-tags and image tags to tvShowDiv
+
+            tvShowDiv.append(p);
+            tvShowDiv.append(showGifs);
+
+            // prepend tvShowDiv to gifs-DIv 
+            $("#gifs-Div").prepend(tvShowDiv);
+          }
+        });
+    });
+
+    // TODOS:
+    // TODO: Display gifs as still images
+    // TODO: Populate a new button off of the search
+    // TODO: API key issues
+
+    $("#searchgifs").on("click", function (event) {
+      event.preventDefault();
+      var inputText = $("#searchtext").val();
+      $(".button-container").append("<button class='search-gif-button' data-show='"+inputText+"'>"+inputText+"</button>")
+    });
+
+    $(document).on("click", ".giphy-image", function () {
+      if ($(this).attr("data-state") === "still") {
+        console.log("still image");
+        $(this).attr("src", $(this).attr("data-animate"));
+        $(this).attr("data-state", "animate");
+      } else {
+        console.log("animated image");
+        $(this).attr("src", $(this).attr("data-still"));
+        $(this).attr("data-state", "still");
+      }
+    });
+  </script>
+</body>
+
+</html>
